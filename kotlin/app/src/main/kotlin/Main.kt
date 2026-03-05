@@ -2,7 +2,7 @@ import model.Student
 import service.calculateGrade
 import service.readStudentsFromExcel
 
-fun main(args: Array<String>){
+fun main(args: Array<String>) {
     println("==================================================")
     println("     STUDENT GRADE CALCULATOR PROGRAM")
     println("==================================================")
@@ -12,12 +12,7 @@ fun main(args: Array<String>){
     println()
     println("==================================================")
     
-    val path = if (args.isNotEmpty()) {
-        args[0]
-    } else {
-        print("Enter the path to your Excel file: ")
-        readLine() ?: ""
-    }
+    val path = args.firstOrNull() ?: readLine()?.takeIf { it.isNotEmpty() } ?: ""
     
     if (path.isEmpty()) {
         println("No path entered. Exiting.")
@@ -25,18 +20,22 @@ fun main(args: Array<String>){
     }
     
     val students = readStudentsFromExcel(path)
-     if (students.isEmpty()){
+    if (students.isEmpty()) {
         println("No students found.")
         return
-     }
-     println("\nProccessing grades...\n")
-      for (student in students){
-        val score =student.grade ?: -1
-         if (score !in 0..100){
+    }
+    
+    println("\nProcessing grades...\n")
+    
+    students
+        .filter { (it.grade ?: -1) in 0..100 }
+        .forEach { student ->
+            println("${student.name}: ${calculateGrade(student.grade!!)}")
+        }
+    
+    students
+        .filter { (it.grade ?: -1) !in 0..100 }
+        .forEach { student ->
             println("${student.name} has an invalid grade.")
-            continue
-         }
-         val letter = calculateGrade(score)
-         println("${student.name}: $letter")
-      }
+        }
 }
